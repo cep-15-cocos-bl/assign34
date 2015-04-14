@@ -1,91 +1,79 @@
-var world;
-var shapeArray=[];
-var worldScale = 30;
 var gameScene = cc.Scene.extend({
-	player:null,
+	squareSprite:null,		
 	onEnter:function () {
-		this._super();
-		winSize = cc.director.getWinSize();
-		var backgroundLayer = cc.LayerGradient.create(cc.color(0xdf,0x9f,0x83,255), cc.color(0xfa,0xf7,0x9f,255));
-    	this.addChild(backgroundLayer);    	
-    	world = new cp.Space();
-        world.gravity = cp.v(0, -10);
-        var debugDraw = cc.PhysicsDebugNode.create(world);
-        debugDraw.setVisible(true);
-        this.addChild(debugDraw);   
-        this.scheduleUpdate();  
-		this.statLayer = new StatusLayer();
-		this.addChild(this.statLayer);
-		this.addBody(240,0,480,20,false,res.ground_png,"ground");
-		this.addBody(254,50,100,24,false,res.platform_png,"platform");
-  	    this.addBody(300,100,40,24,false,res.platform_png,  "platform");
-  	    //this.addBody(50,30,24,24,true,res.player_png,  "#walk1.png");
-  	player = new PlayerClass(this,world,40,23,24,24,true, res.player_png);
+	this._super();
+	winSize = cc.director.getWinSize();
+	
+	//squareSprite = new cc.Sprite.create(res.fighter_png);
+	//this.addChild(squareSprite);
+	//this.squareSprite.setPosition(250,100);
+    space = new cp.Space();
+    space.gravity = cp.v(0, -100);
+    var debugDraw = cc.PhysicsDebugNode.create(space);
+    debugDraw.setVisible(true);
+    this.addChild(debugDraw);   	
+	
+	//Ground
+	groundBody = new cp.Body(Infinity, Infinity);
+    groundBody.setPos(cp.v(250, 70));
+    groundShape = space.addShape(new cp.BoxShape(groundBody,800,50));
+    groundShape.setFriction(1.0);
+    groundShape.setElasticity(0);
+    
+    groundShape.setCollisionType("ground");
+    
+    //Square body
+    squareBody = new cp.Body(1, cp.momentForBox(1,50,50)); //mass, moment of inertia (momentforbox: 1st: mass, 2nd: width, 3rd: height)
+    squareBody.setPos(cp.v(250,140));
+    space.addBody(squareBody);
+    squareShape = space.addShape(new cp.BoxShape(squareBody,50,50));
+    squareShape.setFriction(1.0);
+    squareShape.setElasticity(0);
+    //squareShape.image = squareSprite;
+    
+    squareShape.setCollisionType("square");
   	
-  	  var listener = cc.EventListener.create({
-  		event: cc.EventListener.TOUCH_ONE_BY_ONE,
-  		swallowTouches: true,
-  
-  onTouchBegan: function (touch, event) { 
-            var target = event.getCurrentTarget();  
-            var location = target.convertToNodeSpace(touch.getLocation());    
-            var s = target.getContentSize();
-            var rect = cc.rect(0, 0, s.width, s.height);
-
-            //Check the click area
-            if (cc.rectContainsPoint(rect, location)) {       
-            	if (touch.getLocationX() >= target.x){
-            		target.playJump();
-            	}else{
-            		
-            	}
-                return true;
-            }
-            return false;
-        },
-        //Trigger when moving touch
-        /*onTouchMoved: function (touch, event) {         
-            //Move the position of current button sprite
-            var target = event.getCurrentTarget();
-            var delta = touch.getDelta();
-            target.x += delta.x;
-            target.y += delta.y;
-        },*/
-        //Process the touch end event
-       
-})
-   cc.eventManager.addListener(listener.clone(), this);
-	},
-	
-	update:function (dt) {		
-	 world.step(dt);
+  	//Circle Body
+  	circleBody = new cp.Body(1, cp.momentForCircle(1,50,55,cp.vzero)); // for circle, 2nd: inner diameter, 3rd: outer diameter, offset
+    circleBody.setPos(cp.v(250,210));
+    space.addBody(circleBody);
+    circleShape = space.addShape(new cp.CircleShape(circleBody,50,cp.v(10,10)));
+    circleShape.setFriction(0.2);
+    circleShape.setElasticity(0);
    
-  	player.shape.image.x = player.pbody.p.x;
-    player.shape.image.y = player.pbody.p.y;
-	},
-	playJump:function(){	
-	 player.startJump();
-	},
-  setInvOff:function(dt){
-  },
-  addBody: function(posX,posY,width,height,isDynamic,spriteImage,type){
-  
-  if(isDynamic){
-    var body = new cp.Body(1,cp.momentForBox(1,width,height));
-  }
-  else{
-    var body = new cp.Body(Infinity,Infinity);
-  }
-  body.setPos(cp.v(posX,posY));
-  if(isDynamic){
-    world.addBody(body);
-  }
-  var shape = new cp.BoxShape(body, width, height);
-  shape.setFriction(0);
-  shape.setElasticity(0);
-  shape.name=type;
-  world.addShape(shape);
-  shapeArray.push(shape);
-}
+    circleShape.setCollisionType("circle");
+    //
+    	//Segment Body
+  	segBody = new cp.Body(1, cp.momentForSegment(1,cp.v(0,20),cp.v(130,10),1));
+    segBody.setPos(cp.v(250,280));
+    space.addBody(segBody);
+    segShape = space.addShape(new cp.SegmentShape(segBody,cp.v(0,20),cp.v(130,10),1));
+    segShape.setFriction(10);
+    segShape.setElasticity(0);
+    
+    segShape.setCollisionType("seg");
+    //PolyShape
+    var verts = [
+			0, 0,
+			0, 50,
+			80, 100,
+			120, 50,
+			50, 0
+		];
+    polyBody = new cp.Body(1, cp.momentForPoly(1,verts,cp.v(0,0)));
+    polyBody.setPos(cp.v(20,50));
+    space.addBody(polyBody);
+    polyShape = space.addShape(new cp.PolyShape(polyBody,verts,cp.v(0, 120)));
+    polyShape.setFriction(1);
+    polyShape.setElasticity(0);
+   
+    polyShape.setCollisionType("poly");
+    
+	this.scheduleUpdate();
 	
+	},
+	update:function (dt) {		
+    space.step(dt);
+	}
 });
+ 
