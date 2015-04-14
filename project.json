@@ -12,8 +12,6 @@
 
     "jsList" : [
         "src/resource.js",
-        "src/app.js",
-        "src/StatusLayer.js",
-        "src/Player.js"
+        "src/app.js"
     ]
 }
