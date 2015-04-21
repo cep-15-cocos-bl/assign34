@@ -9,9 +9,9 @@ var PlayerClass  = cc.Sprite.extend({
   jumpAction:null,
   spriteSheet:null,
   jspriteSheet:null,
-  ctor:function(game,gWorld,posX,posY,width,height,isDynamic,spriteImage) {
+  ctor:function(game,gWorld,posX,posY,width,height,isDynamic) {
    // this._super();
-
+/*
   cc.spriteFrameCache.addSpriteFrames(res.walk_plist);
   this.spriteSheet = new cc.SpriteBatchNode(res.walk_png);
   this.addChild(this.spriteSheet);
@@ -45,9 +45,9 @@ playerSprite = new cc.Sprite.create(spriteImage);
     playerSprite.runAction(this.walkAction);
     this.spriteSheet.addChild(playerSprite);
     this.fixBody(game,gWorld,posX,posY,width,height,isDynamic,spriteImage);
-    return this;
+    return this;*/
 },
- fixBody: function(game,gWorld,posX,posY,width,height,isDynamic,spriteImage){
+ fixBody:function(game,gWorld,posX,posY,width,height,isDynamic){
   
      this.pbody = new cp.Body(1,Infinity);
      this.pbody.setPos(cp.v(posX,posY));
@@ -55,13 +55,14 @@ playerSprite = new cc.Sprite.create(spriteImage);
      this.shape = new cp.BoxShape(this.pbody, width, height);
      this.shape.setFriction(1);
      this.shape.setElasticity(0);
-     this.shape.image = playerSprite;
+     //this.shape.image = playerSprite;
      world.addShape(this.shape);
 },
+
 startJump:function(){
   //prototype.velocity_func.call(pbody, 100, 10, dt); 
-  playerSprite.runAction(this.jumpAction);
-    this.jspriteSheet.addChild(playerSprite); 
+  //playerSprite.runAction(this.jumpAction);
+  //this.jspriteSheet.addChild(playerSprite); 
   var curPosX = this.pbody.getPos().x;
   var curPosY = this.pbody.getPos().y;
   this.pbody.applyImpulse(cp.v(30, 30), cp.v(0, 100));
