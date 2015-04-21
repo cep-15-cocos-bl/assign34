@@ -1,79 +1,72 @@
+var world;
+
+
 var gameScene = cc.Scene.extend({
-	squareSprite:null,		
-	onEnter:function () {
-	this._super();
-	winSize = cc.director.getWinSize();
-	
-	//squareSprite = new cc.Sprite.create(res.fighter_png);
-	//this.addChild(squareSprite);
-	//this.squareSprite.setPosition(250,100);
-    space = new cp.Space();
-    space.gravity = cp.v(0, -100);
-    var debugDraw = cc.PhysicsDebugNode.create(space);
-    debugDraw.setVisible(true);
-    this.addChild(debugDraw);   	
-	
-	//Ground
-	groundBody = new cp.Body(Infinity, Infinity);
-    groundBody.setPos(cp.v(250, 70));
-    groundShape = space.addShape(new cp.BoxShape(groundBody,800,50));
-    groundShape.setFriction(1.0);
-    groundShape.setElasticity(0);
-    
-    groundShape.setCollisionType("ground");
-    
-    //Square body
-    squareBody = new cp.Body(1, cp.momentForBox(1,50,50)); //mass, moment of inertia (momentforbox: 1st: mass, 2nd: width, 3rd: height)
-    squareBody.setPos(cp.v(250,140));
-    space.addBody(squareBody);
-    squareShape = space.addShape(new cp.BoxShape(squareBody,50,50));
-    squareShape.setFriction(1.0);
-    squareShape.setElasticity(0);
-    //squareShape.image = squareSprite;
-    
-    squareShape.setCollisionType("square");
-  	
-  	//Circle Body
-  	circleBody = new cp.Body(1, cp.momentForCircle(1,50,55,cp.vzero)); // for circle, 2nd: inner diameter, 3rd: outer diameter, offset
-    circleBody.setPos(cp.v(250,210));
-    space.addBody(circleBody);
-    circleShape = space.addShape(new cp.CircleShape(circleBody,50,cp.v(10,10)));
-    circleShape.setFriction(0.2);
-    circleShape.setElasticity(0);
-   
-    circleShape.setCollisionType("circle");
-    //
-    	//Segment Body
-  	segBody = new cp.Body(1, cp.momentForSegment(1,cp.v(0,20),cp.v(130,10),1));
-    segBody.setPos(cp.v(250,280));
-    space.addBody(segBody);
-    segShape = space.addShape(new cp.SegmentShape(segBody,cp.v(0,20),cp.v(130,10),1));
-    segShape.setFriction(10);
-    segShape.setElasticity(0);
-    
-    segShape.setCollisionType("seg");
-    //PolyShape
-    var verts = [
-			0, 0,
-			0, 50,
-			80, 100,
-			120, 50,
-			50, 0
-		];
-    polyBody = new cp.Body(1, cp.momentForPoly(1,verts,cp.v(0,0)));
-    polyBody.setPos(cp.v(20,50));
-    space.addBody(polyBody);
-    polyShape = space.addShape(new cp.PolyShape(polyBody,verts,cp.v(0, 120)));
-    polyShape.setFriction(1);
-    polyShape.setElasticity(0);
-   
-    polyShape.setCollisionType("poly");
-    
-	this.scheduleUpdate();
-	
-	},
-	update:function (dt) {		
-    space.step(dt);
-	}
+    player: null,
+    platforms: {
+
+    },
+    onEnter: function() {
+        this._super();
+        winSize = cc.director.getWinSize();
+
+        world = new cp.Space();
+        world.gravity = cp.v(0, -5);
+        var debugDraw = cc.PhysicsDebugNode.create(world);
+        debugDraw.setVisible(true);
+        this.addChild(debugDraw);
+        this.scheduleUpdate();
+
+        var groundBody = new cp.Body(Infinity, Infinity);
+        groundBody.setPos(cp.v(240, 30));
+        world.addBody(groundBody);
+        var groundShape = world.addShape(new cp.BoxShape(groundBody, 500, 20));
+        groundShape.setFriction(1.0);
+        groundShape.setElasticity(0.0);
+        groundShape.setCollisionType("ground");
+        groundShape.name = "ground";
+        this.platforms.ground = groundShape;
+
+        var plat1Body = new cp.Body(Infinity, Infinity);
+        plat1Body.setPos(cp.v(80, 80));
+        world.addBody(plat1Body);
+        var plat1Shape = world.addShape(new cp.BoxShape(plat1Body, 120, 20));
+        plat1Shape.setFriction(0.75);
+        plat1Shape.setElasticity(0.0);
+        plat1Shape.setCollisionType("ground");
+        plat1Shape.name = "platform1";
+        this.platforms.plat1 = plat1Shape;
+
+        var plat2Body = new cp.Body(Infinity, cp.momentForCircle(Infinity, 30, 0, cp.vzero));
+        plat2Body.setPos(cp.v(250, 120));
+        world.addBody(plat2Body);
+        var plat2Shape = world.addShape(new cp.CircleShape(plat2Body, 30, cp.vzero));
+        plat2Shape.setFriction(1.5);
+        plat2Shape.setElasticity(0.0);
+        plat2Shape.setCollisionType("ground");
+        plat2Shape.name = "platform2";
+        this.platforms.plat2 = plat2Shape;
+
+        var plat3Body = new cp.Body(Infinity, cp.momentForSegment(Infinity, cp.v(-60,-40), cp.v(60,40), 10));
+        plat3Body.setPos(cp.v(360, 180));
+        world.addBody(plat3Body);
+        var plat3Shape = world.addShape(new cp.SegmentShape(plat3Body, cp.v(-60, -40), cp.v(60, 40), 10));
+        plat3Shape.setFriction(0.25);
+        plat3Shape.setElasticity(0.0);
+        plat3Shape.setCollisionType("ground");
+        plat3Shape.name = "platform3";
+        this.platforms.plat3 = plat3Shape;
+
+        var plat4Body  = new cp.Body(Infinity, cp.momentForSegment(Infinity, cp.v(40, -60), cp.v(-40, 60)), 5);
+        plat4Body.setPos(cp.v(320, 320));
+        world.addBody(plat4Body);
+        var plat4Shape = world.addShape(new cp.SegmentShape(plat4Body, cp.v(40, -60), cp.v(-40, 60)), 10);
+        plat4Shape.setFriction(0.5);
+        plat4Shape.setElasticity(0.05);
+        plat4Shape.setCollisionType("ground");
+        plat4Shape.name = "platform4";
+        this.platforms.plat4 = plat4Shape;
+
+    }
+
 });
- 
