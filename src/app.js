@@ -42,6 +42,30 @@ var gameScene = cc.Scene.extend({
 
         this.scheduleUpdate();
 
+        var listener = cc.EventListener.create({
+            event: cc.EventListener.TOUCH_ONE_BY_ONE,
+            swallowTouches: true,
+            onTouchBegin: function(touch, event) {
+                var target = event.getCurrentTarget();
+                var location = target.convertToNodeSpace(touch.getLocation());
+                var s = target.getConvertToNodeSpace(touch.getLocation());
+                var rect = cc.rect(0, 0, s.width, s.height);
+
+                // check the click area
+                if(cc.rectContainsPoint()) {
+                    if(touch.getLocationX() > target.x) {
+                        // jump right
+                        return 2;
+                    } else if(touch.getLocationX() < target.x) {
+                        // jump left
+                        return 1;
+                    }
+                } else return 0;
+            }
+        });
+
+        cc.eventManager.addListener(listener.clone(), this);
+
     },
 
     update:function(dt) {
