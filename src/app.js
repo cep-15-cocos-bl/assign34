@@ -9,58 +9,36 @@ var gameScene = cc.Scene.extend({
         winSize = cc.director.getWinSize();
 
         world = new cp.Space();
-        world.gravity = cp.v(0, -5);
+        world.gravity = cp.v(0, -100);
         var debugDraw = cc.PhysicsDebugNode.create(world);
         debugDraw.setVisible(true);
         this.addChild(debugDraw);
         this.scheduleUpdate();
 
-        var groundBody = new cp.Body(Infinity, Infinity);
-        groundBody.setPos(cp.v(240, 30));
-        var groundShape = world.addShape(new cp.BoxShape(groundBody, 500, 20));
-        groundShape.setFriction(1.0);
-        groundShape.setElasticity(0.0);
-        groundShape.setCollisionType("ground");
-        groundShape.name = "ground";
-        this.platforms.ground = groundShape;
+        this.createPlatform(
+            0, Infinity, Infinity, 240, 30, ["box", 500, 20], 1.0, 0.0
+        );
 
-        var plat1Body = new cp.Body(Infinity, Infinity);
-        plat1Body.setPos(cp.v(80, 80));
-        var plat1Shape = world.addShape(new cp.BoxShape(plat1Body, 120, 20));
-        plat1Shape.setFriction(0.75);
-        plat1Shape.setElasticity(0.0);
-        plat1Shape.setCollisionType("ground");
-        plat1Shape.name = "platform1";
-        this.platforms.plat1 = plat1Shape;
+        this.createPlatform(
+            1, Infinity, Infinity, 80, 80, ["box", 120, 20], 0.75, 0.0
+        );
 
-        var plat2Body = new cp.Body(Infinity, cp.momentForCircle(Infinity, 30, 0, cp.vzero));
-        plat2Body.setPos(cp.v(250, 120));
-        var plat2Shape = world.addShape(new cp.CircleShape(plat2Body, 30, cp.vzero));
-        plat2Shape.setFriction(1.5);
-        plat2Shape.setElasticity(0.0);
-        plat2Shape.setCollisionType("ground");
-        plat2Shape.name = "platform2";
-        this.platforms.plat2 = plat2Shape;
+        this.createPlatform(
+            2, Infinity, cp.momentForCircle(Infinity, 30, 0, cp.vzero), 250, 120, ["circle", 30],
+            1.5, 0.0
+        );
 
-        var plat3Body = new cp.Body(Infinity, cp.momentForSegment(Infinity, cp.v(-60,-40), cp.v(60,40), 10));
-        plat3Body.setPos(cp.v(360, 180));
-        var plat3Shape = world.addShape(new cp.SegmentShape(plat3Body, cp.v(-60, -40), cp.v(60, 40), 10));
-        plat3Shape.setFriction(0.25);
-        plat3Shape.setElasticity(0.0);
-        plat3Shape.setCollisionType("ground");
-        plat3Shape.name = "platform3";
-        this.platforms.plat3 = plat3Shape;
+        this.createPlatform(
+            3, Infinity, cp.momentForSegment(Infinity, cp.v(-60,-40), cp.v(60,40), 10), 360, 180,
+            ["segment", cp.v(60, -40), cp.v(60, 40), 10], 0.25, 0.0
+        );
 
-        var plat4Body  = new cp.Body(Infinity, cp.momentForSegment(Infinity, cp.v(40, -60), cp.v(-40, 60)), 5);
-        plat4Body.setPos(cp.v(320, 320));
-        var plat4Shape = world.addShape(new cp.SegmentShape(plat4Body, cp.v(40, -60), cp.v(-40, 60)), 10);
-        plat4Shape.setFriction(0.5);
-        plat4Shape.setElasticity(0.05);
-        plat4Shape.setCollisionType("ground");
-        plat4Shape.name = "platform4";
-        this.platforms.plat4 = plat4Shape;
+        this.createPlatform(
+            4, Infinity, cp.momentForSegment(Infinity, cp.v(40, -60), cp.v(-40, 60), 10), 320, 320,
+            ["segment", cp.v(40, -60), cp.v(-40, 60), 10], 0.5, 0.05
+        );
 
-        this.player = new PlayerClass(this, world, 40, 40, 20, 20, true);
+        this.player = new PlayerClass(this, world, 120, 200);
 
         this.scheduleUpdate();
 
@@ -68,6 +46,29 @@ var gameScene = cc.Scene.extend({
 
     update:function(dt) {
         world.step(dt);
-    }   
+    },
+
+    createPlatform: function(id, mass, moment, x, y, shapeArray, friction, elasticity) {
+        var platBody = new cp.Body(mass, moment);
+        platBody.setPos(cp.v(x, y))
+
+        var platShape;
+
+        if(shapeArray[0] == "box") {
+            platShape = new cp.BoxShape(platBody, shapeArray[1], shapeArray[2]);
+        } else if(shapeArray[0] == "circle") {
+            platShape = new cp.CircleShape(platBody, shapeArray[1], cp.vzero);
+        } else if(shapeArray[0] == "segment") {
+            platShape = new cp.SegmentShape(platBody, shapeArray[1], shapeArray[2], shapeArray[3]);
+        }
+
+        platShape = world.addShape(platShape);
+        platShape.setFriction(friction);
+        platShape.setElasticity(elasticity);
+        platShape.setCollisionType("ground");
+        platShape.name = "platform" + id;
+
+        this.platforms["plat" + id] = platShape;
+    }
 
 });
