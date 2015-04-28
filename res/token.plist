@@ -4,57 +4,57 @@
     <dict>
         <key>frames</key>
         <dict>
-            <key>spook1.png</key>
+            <key>token1.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,50},{11,24}}</string>
+                <string>{{2,2},{16,16}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{0,0},{11,24}}</string>
+                <string>{{0,0},{16,16}}</string>
                 <key>sourceSize</key>
-                <string>{11,24}</string>
+                <string>{16,16}</string>
             </dict>
-            <key>spook2.png</key>
+            <key>token2.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,2},{12,22}}</string>
+                <string>{{20,2},{16,16}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{0,0},{12,22}}</string>
+                <string>{{0,0},{16,16}}</string>
                 <key>sourceSize</key>
-                <string>{12,22}</string>
+                <string>{16,16}</string>
             </dict>
-            <key>spook3.png</key>
+            <key>token3.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,50},{11,24}}</string>
+                <string>{{38,2},{16,16}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{0,0},{11,24}}</string>
+                <string>{{0,0},{16,16}}</string>
                 <key>sourceSize</key>
-                <string>{11,24}</string>
+                <string>{16,16}</string>
             </dict>
-            <key>spook4.png</key>
+            <key>token4.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,26},{12,22}}</string>
+                <string>{{56,2},{16,16}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{0,0},{12,22}}</string>
+                <string>{{0,0},{16,16}}</string>
                 <key>sourceSize</key>
-                <string>{12,22}</string>
+                <string>{16,16}</string>
             </dict>
         </dict>
         <key>metadata</key>
@@ -62,13 +62,13 @@
             <key>format</key>
             <integer>2</integer>
             <key>realTextureFileName</key>
-            <string>spook.png</string>
+            <string>token.png</string>
             <key>size</key>
-            <string>{16,80}</string>
+            <string>{74,20}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:3b12ce51bac983b148ed985f0dd59365:79610b59be72d5eee8a7bcf04b9bbba2:772f9681b5c3d3e969fb0cb41e7f5bf8$</string>
+            <string>$TexturePacker:SmartUpdate:96561b5462a78a16495694683c33e880:6d62c4de9349fbe0ab26701ba52f84ac:f22a7901cba73529a5d6c1bd002aa533$</string>
             <key>textureFileName</key>
-            <string>spook.png</string>
+            <string>token.png</string>
         </dict>
     </dict>
 </plist>
