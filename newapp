@@ -1,0 +1,91 @@
+var world;
+
+
+var gameScene = cc.Scene.extend({
+	groundSprite:null,
+    player: null,
+    platforms: {},
+    onEnter: function() {
+        this._super();
+        winSize = cc.director.getWinSize();
+
+        world = new cp.Space();
+        world.gravity = cp.v(0, -100);
+        var debugDraw = cc.PhysicsDebugNode.create(world);
+        debugDraw.setVisible(true);
+        this.addChild(debugDraw);
+        this.scheduleUpdate();
+
+        this.createPlatform(0, Infinity, Infinity, 240, 30, ["box", 500, 20], 1.0, 0.0 , res.platform_png);
+
+        this.createPlatform(1, Infinity, Infinity, 80, 80, ["box", 120, 20], 0.75, 0.0, res.platform_png);
+
+        this.createPlatform(2, Infinity, cp.momentForCircle(Infinity, 30, 0, cp.vzero), 250, 120, ["circle", 30],1.5, 0.0, res.platform_png);
+
+        this.createPlatform(3, Infinity, cp.momentForSegment(Infinity, cp.v(-60,-40), cp.v(60,40), 10), 360, 180, ["segment", cp.v(60, -40), cp.v(60, 40), 10], 0.25, 0.0, res.platform_png );
+
+        this.createPlatform(4, Infinity, cp.momentForSegment(Infinity, cp.v(40, -60), cp.v(-40, 60), 10), 320, 320, ["segment", cp.v(40, -60), cp.v(-40, 60), 10], 0.5, 0.05, res.platform_png );
+		
+		player = new PlayerClass(this,world,100,200,24, 24, true, res.player_png);
+        this.scheduleUpdate();
+
+        var listener = cc.EventListener.create({
+            event: cc.EventListener.TOUCH_ONE_BY_ONE,
+            swallowTouches: true,
+            onTouchBegin: function(touch, event) {
+                var target = event.getCurrentTarget();
+                var location = target.convertToNodeSpace(touch.getLocation());
+                var s = target.getConvertToNodeSpace(touch.getLocation());
+                var rect = cc.rect(0, 0, s.width, s.height);
+
+                // check the click area
+                if(cc.rectContainsPoint()) {
+                    if(touch.getLocationX() > target.x) {
+                        // jump right
+                        return 2;
+                    } else if(touch.getLocationX() < target.x) {
+                        // jump left
+                        return 1;
+                    }
+                } else return 0;
+            }
+        });
+
+        cc.eventManager.addListener(listener.clone(), this);
+
+    },
+
+    update:function(dt) {
+        world.step(dt);
+		player.shape.image.x = player.pbody.p.x;
+    player.shape.image.y = player.pbody.p.y;
+    },
+
+    createPlatform: function(id, mass, moment, x, y, shapeArray, friction, elasticity, spriteImage) {
+		groundSprite = new cc.Sprite.create(spriteImage);
+    	this.addChild(groundSprite,0);
+    	groundSprite.setPosition(x,y);
+    	var spriteImage = res.ground_png;
+        var platBody = new cp.Body(mass, moment);
+        platBody.setPos(cp.v(x, y))
+
+        var platShape;
+
+        if(shapeArray[0] == "box") {
+            platShape = new cp.BoxShape(platBody, shapeArray[1], shapeArray[2]);
+        } else if(shapeArray[0] == "circle") {
+            platShape = new cp.CircleShape(platBody, shapeArray[1], cp.vzero);
+        } else if(shapeArray[0] == "segment") {
+            platShape = new cp.SegmentShape(platBody, shapeArray[1], shapeArray[2], shapeArray[3]);
+        }
+
+        platShape = world.addShape(platShape);
+        platShape.setFriction(friction);
+        platShape.setElasticity(elasticity);
+        platShape.setCollisionType("ground");
+        platShape.name = "platform" + id;
+
+        this.platforms["plat" + id] = platShape;
+    }
+
+});
