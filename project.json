@@ -16,6 +16,7 @@
         "src/player.js",
         "src/hazard.js",
         "src/token.js",
-        "src/app.js"
+        "src/statLayer.js",
+        "src/gameScene.js"
     ]
 }

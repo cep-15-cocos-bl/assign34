@@ -1,11 +1,18 @@
 var HazardClass = cc.Sprite.extend({
+    game: null,
     name: "hazard",
     world: null,
     pbody: null,
     pshape: null,
-    isStatic: false,
+    enemysprite: null,
 
     ctor: function(game, gWorld, posX, posY, id) {
+
+        this.game = game;
+
+        this.enemysprite = new cc.Sprite.create(res.enemy_png);
+        this.game.addChild(this.enemysprite,0);
+        this.enemysprite.setPosition(posX,posY);
 
         // hard-coded
         width = 50;
@@ -22,14 +29,23 @@ var HazardClass = cc.Sprite.extend({
         this.pshape.setFriction(5);
         this.pshape.setElasticity(0.0);
         this.pshape.name = "hazard";
+        this.pshape.image = this.enemysprite;
         this.pshape.id = id;
 
         this.pshape.setCollisionType("hazard");
     },
 
+    updatePosition: function() {
+        this.enemysprite.setPosition(this.pbody.p.x, this.pbody.p.y);
+    },
+
     die: function() {
-        this.world.removeBody(this.pbody);
-        this.world.removeShape(this.pshape);
-        this.parent.removeChild(this);
+        try {
+            this.world.removeBody(this.pbody);
+            this.world.removeShape(this.pshape);
+            this.game.removeChild(this.enemysprite);
+        } catch(err) {
+            
+        }
     }
 });

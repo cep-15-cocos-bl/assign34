@@ -9,6 +9,7 @@ var PlayerClass = cc.Sprite.extend({
     walkAction: null,
     jumpAction: null,
     canJump: false,
+    isAlive: true,
 
     ctor: function(game, gWorld, posX, posY) {
 
@@ -70,7 +71,7 @@ var PlayerClass = cc.Sprite.extend({
 
     },
 
-    jump: function(compare) {
+    jump: function(x, y) {
         
         if(!this.canJump) {
             return 0;
@@ -81,28 +82,30 @@ var PlayerClass = cc.Sprite.extend({
         this.playerSprite.runAction(this.jumpAction);
         this.jspriteSheet.addChild(this.playerSprite);
 
-        if(compare < this.pbody.getPos().x - 10) { // jump left
-            this.pbody.applyImpulse(cp.v(-80, 60), cp.v(40, 80));
-            return 3;
-        } else if(compare > this.pbody.getPos().x + 10) { // jump right
-            this.pbody.applyImpulse(cp.v(80, 60), cp.v(-40, 80));
-            return 2;
+        if(x < this.pbody.getPos().x - 10 && y < this.pbody.getPos().y + 10) { // left, forward
+            this.pbody.applyImpulse(cp.v(-100, 25), cp.v(x, y));
+        } else if(x < this.pbody.getPos().x - 10 && y >= this.pbody.getPos().y + 10) { // left, upward
+            this.pbody.applyImpulse(cp.v(-80, 120), cp.v(x, y));
+
+        } else if(x > this.pbody.getPos().x + 10 && y < this.pbody.getPos().y + 10) { // right, forward
+            this.pbody.applyImpulse(cp.v(100, 25), cp.v(x, y));
+        } else if(x > this.pbody.getPos().x + 10 && y >= this.pbody.getPos().y + 10) { // right, upward
+            this.pbody.applyImpulse(cp.v(80, 120), cp.v(x, y));
+
         } else {
-            this.pbody.applyImpulse(cp.v(0, 100), cp.v(0, 240));
-            return 1;
+            this.pbody.applyImpulse(cp.v(0, 160), cp.v(x, y)); // directly upward
         }
     },
 
     updatePosition: function() {
         this.pshape.image.x = this.pbody.p.x;
-        this.pshape.image.y = this.pbody.p.y
+        this.pshape.image.y = this.pbody.p.y;
     },
 
     die: function() {
+        this.isAlive = false;
         this.world.removeBody(this.pbody);
         this.world.removeShape(this.pshape);
-        this.playerSprite = null;
-        this.removeChild(this.playerSprite);
-        console.log("removing player sprite");
+        this.game.removeChild(this.playerSprite);
     }
 })
