@@ -91,6 +91,8 @@ var gameScene = cc.Scene.extend({
     update:function(dt) {
         world.step(dt);
 
+        this.player.updatePosition();
+
         for(var i = 0; i < this.graveyard.length; i++) {
             if(this.graveyard[i].type == "token") {
                 this.tokens[this.graveyard[i].id].die();
@@ -139,8 +141,8 @@ var gameScene = cc.Scene.extend({
     },
 
     beginCollision: function(arbiter, space) {
-        if(arbiter.a.collision_type == "hazard" && arbiter.b.collision_type == "ground" ||
-            arbiter.a.collision_type == "ground" && arbiter.b.collision_type == "hazard") {
+        if(arbiter.a.collision_type == "hazard" && arbiter.b.collision_type != "player" ||
+            arbiter.a.collision_type != "player" && arbiter.b.collision_type == "hazard") {
             return false;
         }
 
