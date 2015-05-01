@@ -20,9 +20,17 @@ var HazardClass = cc.Sprite.extend({
         this.pshape.setFriction(5);
         this.pshape.setElasticity(0.0);
         this.pshape.name = "hazard" + id;
+        this.pshape.type = "hazard";
+        this.pshape.id = id;
 
         this.pshape.setCollisionType("square");
 
 
+    },
+
+    die: function() {
+        this.world.removeBody(this.pbody);
+        this.world.removeShape(this.pshape);
+        this.parent.removeChild(this);
     }
 });

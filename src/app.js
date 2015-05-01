@@ -3,7 +3,9 @@ var world;
 var gameScene = cc.Scene.extend({
     player: null,
     hazards: [],
+    tokens: [],
     platforms: {},
+    graveyard: [],
     bgLayer: null,
     onEnter: function() {
         this._super();
@@ -19,15 +21,17 @@ var gameScene = cc.Scene.extend({
         this.addChild(debugDraw);
         this.scheduleUpdate();
 
-        world.collisionActions = [
-            ["player", ["platform0", "platform1", "platform2", "platform3", "platform4"], function(x, y, space) {
-                world.restorePlayerJump();
+        world.noclipActions = [
+            ["player", ["token0", "token1", "token2"], function(x, y, space) {
+                space.env.graveyard.push(y);
             }]
         ];
 
-        world.restorePlayerJump = function() {
-            this.player.pshape.canJump = true;
-        }
+        world.collisionActions = [
+            ["player", ["platform0", "platform1", "platform2", "platform3", "platform4"], function(x, y, space) {
+                space.env.restoreJump();
+            }]
+        ];
 
         this.createPlatform(
             0, Infinity, Infinity, 240, 20, ["box", 500, 10], 10.0, 0.0
@@ -61,7 +65,8 @@ var gameScene = cc.Scene.extend({
         );
 
         this.player = new PlayerClass(this, world, 120, 200);
-        world.player = this.player;
+
+        this.tokens[0] = new TokenClass(this, world, 450, 50, 0);
 
         var listener = cc.EventListener.create({
             event: cc.EventListener.TOUCH_ONE_BY_ONE,
@@ -79,7 +84,8 @@ var gameScene = cc.Scene.extend({
 
         cc.eventManager.addListener(listener, this);
 
-        world.setDefaultCollisionHandler(null,null,this.collisionBegin,null);
+        world.env = this;
+        world.setDefaultCollisionHandler(null,null,this.getCollisionHandler("collisionActions"),this.getCollisionHandler("noclipActions"));
         
         this.scheduleUpdate();
 
@@ -87,6 +93,14 @@ var gameScene = cc.Scene.extend({
 
     update:function(dt) {
         world.step(dt);
+
+        for(var i = 0; i < this.graveyard.length; i++) {
+            if(this.graveyard[i].type == "token") {
+                this.tokens[this.graveyard[i].id].die();
+            }
+
+            this.graveyard.splice(i, 1);
+        }
     },
 
     createPlatform: function(id, mass, moment, x, y, shapeArray, friction, elasticity) {
@@ -120,22 +134,23 @@ var gameScene = cc.Scene.extend({
         this.player.canJump = true;
     },
 
-    collisionBegin: function(arbiter, space) {
+    getCollisionHandler: function(group) {
         /*console.log("a = " + arbiter.a.name);
         console.log("b = " + arbiter.b.name);*/
-        for(var i = 0; i < space.collisionActions.length; i++) {
+        return function(arbiter, space) {
+            for(var i = 0; i < space[group].length; i++) {
 
-            if(arbiter.a.name == space.collisionActions[i][0]) {
-                if(space.collisionActions[i][1].indexOf(arbiter.b.name) != -1) {
-                    space.collisionActions[i][2](arbiter.a, arbiter.b, space);
-                }
-            } else if(arbiter.b.name == space.collisionActions[i][0]) {
-                if(space.collisionActions[i][1].indexOf(arbiter.a.name) != -1) {
-                    space.collisionActions[i][2](arbiter.b, arbiter.a, space);
+                if(arbiter.a.name == space[group][i][0]) {
+                    if(space[group][i][1].indexOf(arbiter.b.name) != -1) {
+                        space[group][i][2](arbiter.a, arbiter.b, space);
+                    }
+                } else if(arbiter.b.name == space[group][i][0]) {
+                    if(space[group][i][1].indexOf(arbiter.a.name) != -1) {
+                        space[group][i][2](arbiter.b, arbiter.a, space);
+                    }
                 }
             }
-        }
-
+        };
     }
 
 });
