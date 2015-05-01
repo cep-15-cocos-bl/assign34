@@ -44,13 +44,11 @@ var PlayerClass = cc.Sprite.extend({
         this.jumpAction = new cc.Repeat(new cc.Animate(janimation),1);
         this.playerSprite = new cc.Sprite.create(spriteImage);
 
-        this.game.addChild(playerSprite,0);
+        this.game.addChild(this.playerSprite,0);
         this.playerSprite.setPosition(posX,posY);
         var spriteImage = res.player_png;
         this.playerSprite.runAction(this.walkAction);
         this.spriteSheet.addChild(this.playerSprite);
-        this.fixBody(game,gWorld,posX,posY,width,height,isDynamic,spriteImage);
-        return this;
 
         // hard-coded
         width = 25;
@@ -80,14 +78,13 @@ var PlayerClass = cc.Sprite.extend({
 
         this.canJump = false;
 
-        if(compare < this.pbody.getPos().x + 10) { // jump left
-            playerSprite.runAction(this.jumpAction);
-            this.jspriteSheet.addChild(playerSprite); 
+        this.playerSprite.runAction(this.jumpAction);
+        this.jspriteSheet.addChild(this.playerSprite);
+
+        if(compare < this.pbody.getPos().x - 10) { // jump left
             this.pbody.applyImpulse(cp.v(-80, 60), cp.v(40, 80));
             return 3;
         } else if(compare > this.pbody.getPos().x + 10) { // jump right
-            playerSprite.runAction(this.jumpAction);
-            this.jspriteSheet.addChild(playerSprite); 
             this.pbody.applyImpulse(cp.v(80, 60), cp.v(-40, 80));
             return 2;
         } else {
@@ -96,8 +93,16 @@ var PlayerClass = cc.Sprite.extend({
         }
     },
 
+    updatePosition: function() {
+        this.pshape.image.x = this.pbody.p.x;
+        this.pshape.image.y = this.pbody.p.y
+    },
+
     die: function() {
         this.world.removeBody(this.pbody);
         this.world.removeShape(this.pshape);
+        this.playerSprite = null;
+        this.removeChild(this.playerSprite);
+        console.log("removing player sprite");
     }
 })
