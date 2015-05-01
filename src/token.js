@@ -7,6 +7,7 @@ var TokenClass  = cc.Sprite.extend({
     tokenSprite:null,
     tokenAction:null,
     spriteSheet:null,
+    isAlive: true,
     isDynamic:false,
     ctor:function(game,gWorld,posX,posY, id) {
         width = 10;
@@ -40,17 +41,22 @@ var TokenClass  = cc.Sprite.extend({
         var animation = new cc.Animation(tokenFrames, 0.5);
         //4.wrap the animate action with a repeat forever action
         this.tokenAction = new cc.RepeatForever(new cc.Animate(animation));
-        tokenSprite = new cc.Sprite.create(spriteImage);
-        this.game.addChild(tokenSprite,0);
-        tokenSprite.setPosition(posX,posY);
+        this.tokenSprite = new cc.Sprite.create(spriteImage);
+        this.game.addChild(this.tokenSprite,0);
+        this.tokenSprite.setPosition(posX,posY);
         var spriteImage = res.tokens_png;
 
-        tokenSprite.runAction(this.tokenAction);
-        this.spriteSheet.addChild(tokenSprite);
+        this.tokenSprite.runAction(this.tokenAction);
+        this.spriteSheet.addChild(this.tokenSprite);
     },
 
     die: function() {
+        if(!this.isAlive) {
+            return null;
+        } 
         this.world.removeShape(this.pshape);
-        this.game.removeChild(this);
+        this.game.removeChild(this.tokenSprite);
+        this.game.addScore();
+        this.isAlive = false;
     }
 });
