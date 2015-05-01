@@ -7,54 +7,54 @@
             <key>jump1.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,2},{44,50}}</string>
+                <string>{{60,2},{26,30}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
-                <string>{{0,0},{44,50}}</string>
+                <string>{{0,0},{26,30}}</string>
                 <key>sourceSize</key>
-                <string>{44,50}</string>
+                <string>{26,30}</string>
             </dict>
             <key>jump2.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{48,2},{44,50}}</string>
+                <string>{{2,2},{28,30}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
-                <string>{{0,0},{44,50}}</string>
+                <string>{{0,0},{28,30}}</string>
                 <key>sourceSize</key>
-                <string>{44,50}</string>
+                <string>{28,30}</string>
             </dict>
             <key>jump3.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{94,2},{30,50}}</string>
+                <string>{{34,2},{24,27}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{7,0},{30,50}}</string>
+                <string>{{0,0},{24,27}}</string>
                 <key>sourceSize</key>
-                <string>{44,50}</string>
+                <string>{24,27}</string>
             </dict>
             <key>jump4.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{126,2},{30,50}}</string>
+                <string>{{92,2},{23,25}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{7,0},{30,50}}</string>
+                <string>{{0,0},{23,25}}</string>
                 <key>sourceSize</key>
-                <string>{44,50}</string>
+                <string>{23,25}</string>
             </dict>
         </dict>
         <key>metadata</key>
@@ -64,9 +64,9 @@
             <key>realTextureFileName</key>
             <string>jumping.png</string>
             <key>size</key>
-            <string>{158,54}</string>
+            <string>{117,32}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:f7ca38ce6b733f198991032bba0e83bd:596afa2944d38342bde7cd51aa48818f:816623db1e3307a00c8bbab8c9f6c7d5$</string>
+            <string>$TexturePacker:SmartUpdate:40d2c65c618b46b32fcde2bf00906a9a:fb8c891dd9875ecede4a27b18e4f10fe:816623db1e3307a00c8bbab8c9f6c7d5$</string>
             <key>textureFileName</key>
             <string>jumping.png</string>
         </dict>
