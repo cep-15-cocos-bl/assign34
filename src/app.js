@@ -2,6 +2,7 @@ var world;
 
 var gameScene = cc.Scene.extend({
     player: null,
+    hazards: [],
     platforms: {},
     bgLayer: null,
     onEnter: function() {
@@ -29,11 +30,11 @@ var gameScene = cc.Scene.extend({
         }
 
         this.createPlatform(
-            0, Infinity, Infinity, 240, 30, ["box", 500, 20], 10.0, 0.0
+            0, Infinity, Infinity, 240, 20, ["box", 500, 10], 10.0, 0.0
         );
 
         this.createPlatform(
-            1, Infinity, Infinity, 105, 80, ["box", 120, 20], 7.5, 0.0
+            1, Infinity, Infinity, 105, 80, ["box", 120, 10], 7.5, 0.0
         );
 
         this.createPlatform(
@@ -43,24 +44,20 @@ var gameScene = cc.Scene.extend({
 
         this.createPlatform(
             3, Infinity, cp.momentForSegment(Infinity, cp.v(-60,-40), cp.v(60,40), 10), 360, 180,
-            ["segment", cp.v(-60, -40), cp.v(60, 40), 10], 2.5, 0.0
+            ["segment", cp.v(-60, -40), cp.v(60, 40), 5], 2.5, 0.0
         );
 
         this.createPlatform(
             4, Infinity, cp.momentForSegment(Infinity, cp.v(40, -60), cp.v(-40, 60), 10), 320, 320,
-            ["segment", cp.v(40, -60), cp.v(-40, 60), 10], 5, 0.05
-        );
-
-        this.createPlatform( // ceiling
-            5, Infinity, Infinity, 240, 430, ["box", 500, 20], 10.0, 0.0
+            ["segment", cp.v(40, -60), cp.v(-40, 60), 5], 5, 0.05
         );
 
         this.createPlatform( // left wall
-            6, Infinity, Infinity, 20, 230, ["box", 30, 360], 10.0, 0.0
+            6, Infinity, Infinity, 15, 260, ["box", 10, 400], 10.0, 0.0
         );
 
         this.createPlatform( // right wall
-            7, Infinity, Infinity, 450, 230, ["box", 30, 360], 10.0, 0.0
+            7, Infinity, Infinity, 465, 260, ["box", 10, 400], 10.0, 0.0
         );
 
         this.player = new PlayerClass(this, world, 120, 200);
