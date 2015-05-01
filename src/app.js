@@ -1,6 +1,5 @@
 var world;
 
-
 var gameScene = cc.Scene.extend({
     player: null,
     platforms: {},
@@ -19,7 +18,15 @@ var gameScene = cc.Scene.extend({
         this.addChild(debugDraw);
         this.scheduleUpdate();
 
-        
+        world.collisionActions = [
+            ["player", ["platform0", "platform1", "platform2", "platform3", "platform4"], function(x, y, space) {
+                world.restorePlayerJump();
+            }]
+        ];
+
+        world.restorePlayerJump = function() {
+            this.player.pshape.canJump = true;
+        }
 
         this.createPlatform(
             0, Infinity, Infinity, 240, 30, ["box", 500, 20], 10.0, 0.0
@@ -57,6 +64,7 @@ var gameScene = cc.Scene.extend({
         );
 
         this.player = new PlayerClass(this, world, 120, 200);
+        world.player = this.player;
 
         var listener = cc.EventListener.create({
             event: cc.EventListener.TOUCH_ONE_BY_ONE,
@@ -72,8 +80,10 @@ var gameScene = cc.Scene.extend({
             }
         });
 
-        
         cc.eventManager.addListener(listener, this);
+
+        world.setDefaultCollisionHandler(null,null,this.collisionBegin,null);
+        
         this.scheduleUpdate();
 
     },
@@ -106,7 +116,29 @@ var gameScene = cc.Scene.extend({
     },
 
     playJump: function(x) {
-        this.player.jump(x);
+        return this.player.jump(x);
+    },
+
+    restoreJump: function() {
+        this.player.canJump = true;
+    },
+
+    collisionBegin: function(arbiter, space) {
+        /*console.log("a = " + arbiter.a.name);
+        console.log("b = " + arbiter.b.name);*/
+        for(var i = 0; i < space.collisionActions.length; i++) {
+
+            if(arbiter.a.name == space.collisionActions[i][0]) {
+                if(space.collisionActions[i][1].indexOf(arbiter.b.name) != -1) {
+                    space.collisionActions[i][2](arbiter.a, arbiter.b, space);
+                }
+            } else if(arbiter.b.name == space.collisionActions[i][0]) {
+                if(space.collisionActions[i][1].indexOf(arbiter.a.name) != -1) {
+                    space.collisionActions[i][2](arbiter.b, arbiter.a, space);
+                }
+            }
+        }
+
     }
 
 });
