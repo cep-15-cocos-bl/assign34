@@ -14,7 +14,8 @@ var gameScene = cc.Scene.extend({
 
         this.bgLayer = new bgLayer();
         this.addChild(this.bgLayer);
-
+        this.statLayer = new StatusLayer();
+		this.addChild(this.statLayer);
         world = new cp.Space();
         world.gravity = cp.v(0, -100);
         var debugDraw = cc.PhysicsDebugNode.create(world);
