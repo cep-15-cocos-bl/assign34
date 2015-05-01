@@ -4,9 +4,13 @@ var world;
 var gameScene = cc.Scene.extend({
     player: null,
     platforms: {},
+    bgLayer: null,
     onEnter: function() {
         this._super();
         winSize = cc.director.getWinSize();
+
+        this.bgLayer = new bgLayer();
+        this.addChild(this.bgLayer);
 
         world = new cp.Space();
         world.gravity = cp.v(0, -100);
@@ -15,56 +19,62 @@ var gameScene = cc.Scene.extend({
         this.addChild(debugDraw);
         this.scheduleUpdate();
 
+        
+
         this.createPlatform(
-            0, Infinity, Infinity, 240, 30, ["box", 500, 20], 1.0, 0.0
+            0, Infinity, Infinity, 240, 30, ["box", 500, 20], 10.0, 0.0
         );
 
         this.createPlatform(
-            1, Infinity, Infinity, 80, 80, ["box", 120, 20], 0.75, 0.0
+            1, Infinity, Infinity, 105, 80, ["box", 120, 20], 7.5, 0.0
         );
 
         this.createPlatform(
             2, Infinity, cp.momentForCircle(Infinity, 30, 0, cp.vzero), 250, 120, ["circle", 30],
-            1.5, 0.0
+            15.0, 0.0
         );
 
         this.createPlatform(
             3, Infinity, cp.momentForSegment(Infinity, cp.v(-60,-40), cp.v(60,40), 10), 360, 180,
-            ["segment", cp.v(60, -40), cp.v(60, 40), 10], 0.25, 0.0
+            ["segment", cp.v(-60, -40), cp.v(60, 40), 10], 2.5, 0.0
         );
 
         this.createPlatform(
             4, Infinity, cp.momentForSegment(Infinity, cp.v(40, -60), cp.v(-40, 60), 10), 320, 320,
-            ["segment", cp.v(40, -60), cp.v(-40, 60), 10], 0.5, 0.05
+            ["segment", cp.v(40, -60), cp.v(-40, 60), 10], 5, 0.05
+        );
+
+        this.createPlatform( // ceiling
+            5, Infinity, Infinity, 240, 430, ["box", 500, 20], 10.0, 0.0
+        );
+
+        this.createPlatform( // left wall
+            6, Infinity, Infinity, 20, 230, ["box", 30, 360], 10.0, 0.0
+        );
+
+        this.createPlatform( // right wall
+            7, Infinity, Infinity, 450, 230, ["box", 30, 360], 10.0, 0.0
         );
 
         this.player = new PlayerClass(this, world, 120, 200);
 
-        this.scheduleUpdate();
-
         var listener = cc.EventListener.create({
             event: cc.EventListener.TOUCH_ONE_BY_ONE,
             swallowTouches: true,
-            onTouchBegin: function(touch, event) {
+            onTouchBegan: function (touch, event) {
                 var target = event.getCurrentTarget();
                 var location = target.convertToNodeSpace(touch.getLocation());
-                var s = target.getConvertToNodeSpace(touch.getLocation());
-                var rect = cc.rect(0, 0, s.width, s.height);
-
-                // check the click area
-                if(cc.rectContainsPoint()) {
-                    if(touch.getLocationX() > target.x) {
-                        // jump right
-                        return 2;
-                    } else if(touch.getLocationX() < target.x) {
-                        // jump left
-                        return 1;
-                    }
-                } else return 0;
+                var targetSize = target.getContentSize();
+                var targetRectangle = cc.rect(0, 0, targetSize.width, targetSize.height);
+                if (cc.rectContainsPoint(targetRectangle, location)) {
+                    target.playJump(touch.getLocationX());
+                }
             }
         });
 
-        cc.eventManager.addListener(listener.clone(), this);
+        
+        cc.eventManager.addListener(listener, this);
+        this.scheduleUpdate();
 
     },
 
@@ -93,6 +103,10 @@ var gameScene = cc.Scene.extend({
         platShape.name = "platform" + id;
 
         this.platforms["plat" + id] = platShape;
+    },
+
+    playJump: function(x) {
+        this.player.jump(x);
     }
 
 });
