@@ -55,6 +55,8 @@ var gameScene = cc.Scene.extend({
         this.player = new PlayerClass(this, world, 120, 200);
 
         this.tokens[0] = new TokenClass(this, world, 440, 50, 0);
+        this.tokens[1] = new TokenClass(this, world, 420, 350, 0);
+        this.tokens[2] = new TokenClass(this, world, 250, 160, 0);
 
         var listener = cc.EventListener.create({
             event: cc.EventListener.TOUCH_ONE_BY_ONE,
