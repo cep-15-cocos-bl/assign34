@@ -1,9 +1,12 @@
 var world;
 
-
 var gameScene = cc.Scene.extend({
     player: null,
+    hazards: [],
+    hCounter: 0,
+    tokens: [],
     platforms: {},
+    graveyard: [],
     bgLayer: null,
     onEnter: function() {
         this._super();
@@ -17,16 +20,13 @@ var gameScene = cc.Scene.extend({
         var debugDraw = cc.PhysicsDebugNode.create(world);
         debugDraw.setVisible(true);
         this.addChild(debugDraw);
-        this.scheduleUpdate();
-
-        
 
         this.createPlatform(
-            0, Infinity, Infinity, 240, 30, ["box", 500, 20], 10.0, 0.0
+            0, Infinity, Infinity, 240, 20, ["box", 500, 10], 10.0, 0.0
         );
 
         this.createPlatform(
-            1, Infinity, Infinity, 105, 80, ["box", 120, 20], 7.5, 0.0
+            1, Infinity, Infinity, 105, 80, ["box", 120, 10], 7.5, 0.0
         );
 
         this.createPlatform(
@@ -36,27 +36,25 @@ var gameScene = cc.Scene.extend({
 
         this.createPlatform(
             3, Infinity, cp.momentForSegment(Infinity, cp.v(-60,-40), cp.v(60,40), 10), 360, 180,
-            ["segment", cp.v(-60, -40), cp.v(60, 40), 10], 2.5, 0.0
+            ["segment", cp.v(-60, -40), cp.v(60, 40), 5], 2.5, 0.0
         );
 
         this.createPlatform(
             4, Infinity, cp.momentForSegment(Infinity, cp.v(40, -60), cp.v(-40, 60), 10), 320, 320,
-            ["segment", cp.v(40, -60), cp.v(-40, 60), 10], 5, 0.05
-        );
-
-        this.createPlatform( // ceiling
-            5, Infinity, Infinity, 240, 430, ["box", 500, 20], 10.0, 0.0
+            ["segment", cp.v(40, -60), cp.v(-40, 60), 5], 5, 0.05
         );
 
         this.createPlatform( // left wall
-            6, Infinity, Infinity, 20, 230, ["box", 30, 360], 10.0, 0.0
+            6, Infinity, Infinity, 15, 260, ["box", 10, 400], 10.0, 0.0
         );
 
         this.createPlatform( // right wall
-            7, Infinity, Infinity, 450, 230, ["box", 30, 360], 10.0, 0.0
+            7, Infinity, Infinity, 465, 260, ["box", 10, 400], 10.0, 0.0
         );
 
         this.player = new PlayerClass(this, world, 120, 200);
+
+        this.tokens[0] = new TokenClass(this, world, 440, 50, 0);
 
         var listener = cc.EventListener.create({
             event: cc.EventListener.TOUCH_ONE_BY_ONE,
@@ -72,14 +70,38 @@ var gameScene = cc.Scene.extend({
             }
         });
 
-        
         cc.eventManager.addListener(listener, this);
+
+        world.env = this;
+        world.setDefaultCollisionHandler(
+            this.beginCollision,
+            this.preCollision,
+            this.postCollision,
+            null
+        );
+        
+        this.schedule(this.spawnEnemy, 3);
         this.scheduleUpdate();
 
     },
 
     update:function(dt) {
         world.step(dt);
+
+        for(var i = 0; i < this.graveyard.length; i++) {
+            if(this.graveyard[i].type == "token") {
+                this.tokens[this.graveyard[i].id].die();
+            } else if(this.graveyard[i].type == "player") {
+                this.player.die();
+            }
+
+            this.graveyard.splice(i, 1);
+        }
+    },
+
+    spawnEnemy: function() {
+        this.hazards[this.hCounter] = new HazardClass(this, world, 25 + Math.random() * 400, 600);
+        this.hCounter++;
     },
 
     createPlatform: function(id, mass, moment, x, y, shapeArray, friction, elasticity) {
@@ -106,7 +128,45 @@ var gameScene = cc.Scene.extend({
     },
 
     playJump: function(x) {
-        this.player.jump(x);
+        return this.player.jump(x);
+    },
+
+    restoreJump: function() {
+        this.player.canJump = true;
+    },
+
+    beginCollision: function(arbiter, space) {
+        if(arbiter.a.collision_type == "hazard" && arbiter.b.collision_type == "ground" ||
+            arbiter.a.collision_type == "ground" && arbiter.b.collision_type == "hazard") {
+            return false;
+        }
+
+        return true;
+    },
+
+    preCollision: function(arbiter, space) {
+        if(arbiter.a.collision_type == "player" && arbiter.b.collision_type == "token") {
+            space.env.graveyard.push(arbiter.b);
+            return false;
+        } else if(arbiter.a.collision_type == "token" && arbiter.b.collision_type == "player") {
+            space.env.graveyard.push(arbiter.a);
+            return false;
+        } else if(arbiter.a.collision_type == "player" && arbiter.b.collision_type == "hazard") {
+            space.env.graveyard.push(arbiter.a);
+            return false;
+        } else if(arbiter.a.collision_type == "hazard" && arbiter.b.collision_type == "player") {
+            space.env.graveyard.push(arbiter.b);
+            return false;
+        }
+
+        return true;
+    },
+
+    postCollision: function(arbiter, space) {
+        if(arbiter.a.collision_type == "player" && arbiter.b.collision_type == "ground" ||
+            arbiter.a.collision_type == "ground" && arbiter.b.collision_type == "player") {
+            space.env.restoreJump();
+        }
     }
 
 });

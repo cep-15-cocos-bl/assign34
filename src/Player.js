@@ -1,5 +1,5 @@
 var PlayerClass = cc.Sprite.extend({
-    pName: "player",
+    name: "player",
     world: null,
     pbody: null,
     pshape: null,
@@ -7,36 +7,55 @@ var PlayerClass = cc.Sprite.extend({
     jumpSprite: null,
     walkAction: null,
     jumpAction: null,
+    canJump: false,
 
     ctor: function(game, gWorld, posX, posY) {
 
         // hard-coded
-        width = 40;
-        height = 40;
+        width = 25;
+        height = 25;
 
         this.world = gWorld;
+        this.world.player = this;
 
-        this.pbody = new cp.Body(1, cp.momentForBox(10, 10, 10));
+        this.pbody = new cp.Body(1, Infinity);
         this.pbody.setPos(cp.v(posX, posY));
         this.world.addBody(this.pbody);
 
-        this.pshape = this.world.addShape(new cp.BoxShape(this.pbody, 20, 20));
+        this.pshape = this.world.addShape(new cp.BoxShape(this.pbody, width, height));
         this.pshape.setFriction(10.0);
         this.pshape.setElasticity(0.0);
+        this.pshape.name = "player";
+        this.pshape.id = 0;
+        this.pshape.type = "player";
 
-        this.pshape.setCollisionType("square");
+        this.pshape.setCollisionType("player");
+
+
     },
 
     jump: function(compare) {
-        if(compare > this.pbody.getPos().x) { // jump left
-            this.pbody.applyImpulse(cp.v(-10, 20), cp.v(0, 480));
-            return 2;
-        } else if(compare < this.pbody.getPos().x) { // jump right
-            this.pbody.applyImpulse(cp.v(10, 20), cp.v(0, 0));
-            return 1;
-        } else {
-            this.pbody.applyImpulse(cp.v(0, 25), cp.v(0, 240));
+        
+        if(!this.canJump) {
             return 0;
         }
+
+        this.canJump = false;
+
+        if(compare < this.pbody.getPos().x + 10) { // jump left
+            this.pbody.applyImpulse(cp.v(-80, 60), cp.v(40, 80));
+            return 3;
+        } else if(compare > this.pbody.getPos().x + 10) { // jump right
+            this.pbody.applyImpulse(cp.v(80, 60), cp.v(-40, 80));
+            return 2;
+        } else {
+            this.pbody.applyImpulse(cp.v(0, 100), cp.v(0, 240));
+            return 1;
+        }
+    },
+
+    die: function() {
+        this.world.removeBody(this.pbody);
+        this.world.removeShape(this.pshape);
     }
 })
