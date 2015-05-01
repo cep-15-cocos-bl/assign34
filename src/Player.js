@@ -16,7 +16,7 @@ var PlayerClass = cc.Sprite.extend({
 
         this.world = gWorld;
 
-        this.pbody = new cp.Body(1, cp.momentForBox(10, 10, 10));
+        this.pbody = new cp.Body(1, Infinity);
         this.pbody.setPos(cp.v(posX, posY));
         this.world.addBody(this.pbody);
 
