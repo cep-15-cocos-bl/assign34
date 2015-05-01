@@ -3,29 +3,28 @@ var HazardClass = cc.Sprite.extend({
     world: null,
     pbody: null,
     pshape: null,
+    isStatic: false,
 
     ctor: function(game, gWorld, posX, posY, id) {
 
         // hard-coded
-        width = 80;
-        height = 80;
+        width = 50;
+        height = 50;
 
         this.world = gWorld;
-        this.world.hazards[id] = this;
+        this.world.env.hazards[id] = this;
 
         this.pbody = new cp.Body(4, Infinity);
-        this.pbody.addBody(this.pbody);
+        this.pbody.setPos(cp.v(posX, posY));
+        this.world.addBody(this.pbody);
 
-        this.pshape = this.world.addShape(this.pbody, width, height);
+        this.pshape = this.world.addShape(new cp.BoxShape(this.pbody, width, height));
         this.pshape.setFriction(5);
         this.pshape.setElasticity(0.0);
-        this.pshape.name = "hazard" + id;
-        this.pshape.type = "hazard";
+        this.pshape.name = "hazard";
         this.pshape.id = id;
 
-        this.pshape.setCollisionType("square");
-
-
+        this.pshape.setCollisionType("hazard");
     },
 
     die: function() {

@@ -7,7 +7,7 @@ var PlayerClass = cc.Sprite.extend({
     jumpSprite: null,
     walkAction: null,
     jumpAction: null,
-    canJump: true,
+    canJump: false,
 
     ctor: function(game, gWorld, posX, posY) {
 
@@ -29,7 +29,7 @@ var PlayerClass = cc.Sprite.extend({
         this.pshape.id = 0;
         this.pshape.type = "player";
 
-        this.pshape.setCollisionType("square");
+        this.pshape.setCollisionType("player");
 
 
     },
@@ -57,6 +57,5 @@ var PlayerClass = cc.Sprite.extend({
     die: function() {
         this.world.removeBody(this.pbody);
         this.world.removeShape(this.pshape);
-        this.parent.removeChild(this);
     }
 })

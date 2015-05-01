@@ -3,6 +3,7 @@ var world;
 var gameScene = cc.Scene.extend({
     player: null,
     hazards: [],
+    hCounter: 0,
     tokens: [],
     platforms: {},
     graveyard: [],
@@ -19,19 +20,6 @@ var gameScene = cc.Scene.extend({
         var debugDraw = cc.PhysicsDebugNode.create(world);
         debugDraw.setVisible(true);
         this.addChild(debugDraw);
-        this.scheduleUpdate();
-
-        world.noclipActions = [
-            ["player", ["token0", "token1", "token2"], function(x, y, space) {
-                space.env.graveyard.push(y);
-            }]
-        ];
-
-        world.collisionActions = [
-            ["player", ["platform0", "platform1", "platform2", "platform3", "platform4"], function(x, y, space) {
-                space.env.restoreJump();
-            }]
-        ];
 
         this.createPlatform(
             0, Infinity, Infinity, 240, 20, ["box", 500, 10], 10.0, 0.0
@@ -66,7 +54,7 @@ var gameScene = cc.Scene.extend({
 
         this.player = new PlayerClass(this, world, 120, 200);
 
-        this.tokens[0] = new TokenClass(this, world, 450, 50, 0);
+        this.tokens[0] = new TokenClass(this, world, 440, 50, 0);
 
         var listener = cc.EventListener.create({
             event: cc.EventListener.TOUCH_ONE_BY_ONE,
@@ -85,8 +73,14 @@ var gameScene = cc.Scene.extend({
         cc.eventManager.addListener(listener, this);
 
         world.env = this;
-        world.setDefaultCollisionHandler(null,null,this.getCollisionHandler("collisionActions"),this.getCollisionHandler("noclipActions"));
+        world.setDefaultCollisionHandler(
+            this.beginCollision,
+            this.preCollision,
+            this.postCollision,
+            null
+        );
         
+        this.schedule(this.spawnEnemy, 3);
         this.scheduleUpdate();
 
     },
@@ -97,10 +91,17 @@ var gameScene = cc.Scene.extend({
         for(var i = 0; i < this.graveyard.length; i++) {
             if(this.graveyard[i].type == "token") {
                 this.tokens[this.graveyard[i].id].die();
+            } else if(this.graveyard[i].type == "player") {
+                this.player.die();
             }
 
             this.graveyard.splice(i, 1);
         }
+    },
+
+    spawnEnemy: function() {
+        this.hazards[this.hCounter] = new HazardClass(this, world, 25 + Math.random() * 400, 600);
+        this.hCounter++;
     },
 
     createPlatform: function(id, mass, moment, x, y, shapeArray, friction, elasticity) {
@@ -134,23 +135,38 @@ var gameScene = cc.Scene.extend({
         this.player.canJump = true;
     },
 
-    getCollisionHandler: function(group) {
-        /*console.log("a = " + arbiter.a.name);
-        console.log("b = " + arbiter.b.name);*/
-        return function(arbiter, space) {
-            for(var i = 0; i < space[group].length; i++) {
+    beginCollision: function(arbiter, space) {
+        if(arbiter.a.collision_type == "hazard" && arbiter.b.collision_type == "ground" ||
+            arbiter.a.collision_type == "ground" && arbiter.b.collision_type == "hazard") {
+            return false;
+        }
 
-                if(arbiter.a.name == space[group][i][0]) {
-                    if(space[group][i][1].indexOf(arbiter.b.name) != -1) {
-                        space[group][i][2](arbiter.a, arbiter.b, space);
-                    }
-                } else if(arbiter.b.name == space[group][i][0]) {
-                    if(space[group][i][1].indexOf(arbiter.a.name) != -1) {
-                        space[group][i][2](arbiter.b, arbiter.a, space);
-                    }
-                }
-            }
-        };
+        return true;
+    },
+
+    preCollision: function(arbiter, space) {
+        if(arbiter.a.collision_type == "player" && arbiter.b.collision_type == "token") {
+            space.env.graveyard.push(arbiter.b);
+            return false;
+        } else if(arbiter.a.collision_type == "token" && arbiter.b.collision_type == "player") {
+            space.env.graveyard.push(arbiter.a);
+            return false;
+        } else if(arbiter.a.collision_type == "player" && arbiter.b.collision_type == "hazard") {
+            space.env.graveyard.push(arbiter.a);
+            return false;
+        } else if(arbiter.a.collision_type == "hazard" && arbiter.b.collision_type == "player") {
+            space.env.graveyard.push(arbiter.b);
+            return false;
+        }
+
+        return true;
+    },
+
+    postCollision: function(arbiter, space) {
+        if(arbiter.a.collision_type == "player" && arbiter.b.collision_type == "ground" ||
+            arbiter.a.collision_type == "ground" && arbiter.b.collision_type == "player") {
+            space.env.restoreJump();
+        }
     }
 
 });

@@ -20,7 +20,7 @@ var TokenClass  = cc.Sprite.extend({
         this.pshape = this.world.addShape(new cp.BoxShape(this.pbody, 20, 20));
         this.pshape.setFriction(10.0);
         this.pshape.setElasticity(0.0);
-        this.pshape.setCollisionType("square");
+        this.pshape.setCollisionType("token");
         this.pshape.name = "token" + id;
 
         this.pshape.id = id;
